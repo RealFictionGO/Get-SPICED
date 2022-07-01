@@ -37,6 +37,7 @@ loadSound("wining", "wining.mp3")
 loadRoot('/sprites/')
 loadSprite("253", "253.png")
 loadSprite("crown", "crown.png")
+loadSprite("hu", "holoup.png")
 loadSprite("pepper", "pepper.png")
 loadSprite("goldenpepper", "goldenpepper.png")
 loadSprite("hpepper", "holy pepper.png")
@@ -593,7 +594,19 @@ scene("howtoplay", () => {
 		area(),
 		solid(),
 		color(24,121,176)
+    
 	]);
+  const hu = add([
+    sprite("hu"),
+    pos(32, height() - 40)
+  ])
+
+  add([
+    text("buy powerup's to\nboost your gameplay"),
+    scale(0.1,0.1),
+    pos(hu.pos.x + 35, hu.pos.y + 10)
+  ])
+  
   add([
     sprite("back"),
     area(),
@@ -675,8 +688,25 @@ scene("intro", () => {
     color(23,158,188)
   ])
 
+  add([
+    sprite("key"),
+    pos(width() / 2 - 45, 150)
+  ])
+
+  add([
+    text("Press"),
+    pos(width() / 2 - 85, 150),
+    scale(0.15,0.15)
+  ])
+
+  add([
+    text("to continue"),
+    pos(width() / 2 + 5, 150),
+    scale(0.15,0.15)
+  ])
+
   onKeyPress("space", () => go("menu"));
   onClick(() => go("menu"));
 })
 
-go("game");
+go("intro");
