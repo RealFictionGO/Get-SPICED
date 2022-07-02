@@ -2925,9 +2925,10 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
   var run = true;
   var pepperBoost = 1;
   var hp = 3;
+  var last_hp = 0;
   var angry = false;
   var angryTime = 0;
-  var score = 0;
+  var score = 250;
   var textes = ["Good job", "Ones more", "Another bites...", "THAT CLOSE"];
   loadRoot("/sounds/");
   loadSound("hurt", "hurt.mp3");
@@ -2960,8 +2961,11 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
   loadSprite("hp", "hearth.png");
   loadSprite("fury", "angrycookboost.png");
   loadSprite("morehp", "hpboost.png");
+  loadSprite("arcade", "arcade.png");
   loadSprite("pepCount", "pepperboost.png");
   loadSprite("logo", "sicklogo.png");
+  loadSprite("am", "arcademode.png");
+  loadSprite("er", "endless.png");
   loadSprite("Cookwalkright", "Cookwalkright.png", {
     sliceX: 16,
     anims: {
@@ -2996,7 +3000,7 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     add([
       rect(width() * 2, height() * 2),
       pos(-width() / 2, -height() / 2),
-      color(172, 172, 172)
+      color(172, 146, 115)
     ]);
     gravity(2400);
     const player = add([
@@ -3029,6 +3033,7 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
         SPEED = 400;
         score -= 10;
         angry = true;
+        last_hp = hp;
         hp += 20;
         angryTime = 10;
       }
@@ -3043,7 +3048,11 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
       play("hpup");
       if (score >= 10 && over == false) {
         score -= 10;
-        hp += 1;
+        if (angry == true) {
+          last_hp += 1;
+        } else {
+          hp += 1;
+        }
       }
     });
     add([
@@ -3140,7 +3149,9 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     player.onCollide("gp", (gp) => {
       play("gold");
       destroy(gp);
-      wait(3, go("win"));
+      wait(3, () => {
+        go("win");
+      });
     });
     onUpdate(() => {
       if (score >= 253) {
@@ -3159,9 +3170,7 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
         angryTime -= 1 / 60;
       } else if (angry == true && angryTime <= 0) {
         angry = false;
-        if (hp > 3) {
-          hp = 3;
-        }
+        hp = last_hp;
         SPEED = last_SPEED;
       }
       scoreLabel.text = score;
@@ -3189,7 +3198,7 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     add([
       rect(width(), height()),
       pos(0, 0),
-      color(172, 172, 172)
+      color(172, 146, 115)
     ]);
     over = false;
     pepperBoost = 1;
@@ -3254,7 +3263,7 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     add([
       rect(width(), height()),
       pos(0, 0),
-      color(172, 172, 172)
+      color(172, 146, 115)
     ]);
     const player = add([
       sprite("Cookwalkright"),
@@ -3264,13 +3273,18 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     ]);
     player.play("smile");
     add([
+      sprite("crown"),
+      pos(player.pos.x - 32, player.pos.y - 28),
+      rotate(-45)
+    ]);
+    add([
       sprite("goldenpepper"),
       pos(player.pos.x + 15, player.pos.y + 5)
     ]);
     play("smiling");
     add([
       text(score),
-      pos(width() / 2 - 8, height() / 2 + 50),
+      pos(width() / 2 - 8, height() / 2 + 30),
       origin("center"),
       scale(0.6, 0.6),
       color(230, 194, 35)
@@ -3288,7 +3302,7 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     add([
       rect(width(), height()),
       pos(0, 0),
-      color(172, 172, 172)
+      color(172, 146, 115)
     ]);
     over = false;
     pepperBoost = 1;
@@ -3319,7 +3333,7 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     ]);
     add([
       text(score),
-      pos(width() / 2 - 8, height() / 2 + 50),
+      pos(width() / 2 - 8, height() / 2 + 30),
       origin("center"),
       scale(0.6, 0.6)
     ]);
@@ -3352,7 +3366,7 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     add([
       rect(width(), height()),
       pos(0, 0),
-      color(172, 172, 172)
+      color(172, 146, 115)
     ]);
     add([
       sprite("logo"),
@@ -3387,13 +3401,294 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
       "lore"
     ]);
     onClick("lore", () => go("lores"));
+    add([
+      sprite("arcade"),
+      pos(width() - 48, 40),
+      origin("botleft"),
+      area(),
+      "ar"
+    ]);
+    onClick("ar", () => go("arcademenu"));
+    onKeyPress("space", () => go("game"));
+  });
+  scene("arcademenu", () => {
+    add([
+      rect(width(), height()),
+      pos(0, 0),
+      color(172, 146, 115)
+    ]);
+    add([
+      sprite("back"),
+      area(),
+      pos(width() / 2 - 40, 175),
+      "b"
+    ]);
+    add([
+      sprite("key"),
+      pos(width() / 2 - 30, 150)
+    ]);
+    add([
+      sprite("am"),
+      pos(width() / 5, height() / 3),
+      scale(1.5, 1.5)
+    ]);
+    add([
+      sprite("er"),
+      pos(width() / 3.5, height() / 2)
+    ]);
+    add([
+      text("Press"),
+      pos(width() / 2 - 70, 150),
+      scale(0.15, 0.15)
+    ]);
+    add([
+      text("to play"),
+      pos(width() / 2 + 20, 150),
+      scale(0.15, 0.15)
+    ]);
+    onKeyPress("space", () => go("arcadegame"));
+    onClick("b", () => go("menu"));
+  });
+  scene("arcadegame", () => {
+    add([
+      rect(width() * 2, height() * 2),
+      pos(-width() / 2, -height() / 2),
+      color(172, 146, 115)
+    ]);
+    gravity(2400);
+    const player = add([
+      sprite("Cookwalkright"),
+      pos(80, 40),
+      scale(2, 2),
+      area(),
+      body()
+    ]);
+    player.play("run");
+    add([
+      rect(width(), FLOOR_HEIGHT),
+      outline(1),
+      pos(0, height()),
+      origin("botleft"),
+      area(),
+      solid(),
+      color(179, 117, 65)
+    ]);
+    add([
+      sprite("fury"),
+      area(),
+      pos(48, height() - 40),
+      "fury"
+    ]);
+    onClick("fury", () => {
+      if (score >= 10 && over == false) {
+        play("fury");
+        last_SPEED = SPEED;
+        SPEED = 400;
+        score -= 10;
+        angry = true;
+        last_hp = hp;
+        hp += 20;
+        angryTime = 10;
+      }
+    });
+    add([
+      sprite("morehp"),
+      area(),
+      pos(112, height() - 40),
+      "hp"
+    ]);
+    onClick("hp", () => {
+      play("hpup");
+      if (score >= 10 && over == false) {
+        score -= 10;
+        if (angry == true) {
+          last_hp += 1;
+        } else {
+          hp += 1;
+        }
+      }
+    });
+    add([
+      sprite("pepCount"),
+      area(),
+      pos(176, height() - 40),
+      "pep"
+    ]);
+    onClick("pep", () => {
+      if (score >= 20 && over == false) {
+        play("boostup");
+        score -= 20;
+        pepperBoost *= 2;
+      }
+    });
+    function jump() {
+      if (player.isGrounded() && over == false) {
+        player.jump(JUMP_FORCE);
+        run = false;
+        if (angry == true) {
+          player.play("angry_jump");
+        } else {
+          player.play("jump");
+        }
+        JUMP_FORCE = 0;
+      }
+    }
+    __name(jump, "jump");
+    function add_jump() {
+      if (JUMP_FORCE < 800) {
+        JUMP_FORCE += 100;
+      }
+    }
+    __name(add_jump, "add_jump");
+    onKeyDown("space", add_jump);
+    onKeyRelease("space", jump);
+    function spawnTree() {
+      if (over == false) {
+        rh = rand(1, 2.5);
+        add([
+          sprite("taco"),
+          scale(1, rh),
+          outline(1),
+          area(),
+          pos(width(), height() - FLOOR_HEIGHT),
+          origin("botleft"),
+          color(255, 180, 255),
+          move(LEFT, SPEED),
+          "tree"
+        ]);
+        add([
+          sprite("pepper"),
+          area(),
+          scale(2, 2),
+          pos(width() + 10, height() - 74 - 32 * rh),
+          origin("botleft"),
+          move(LEFT, SPEED),
+          "pepper"
+        ]);
+        wait(rand(1, 1.3), spawnTree);
+      }
+    }
+    __name(spawnTree, "spawnTree");
+    wait(2, spawnTree);
+    const scoreLabel = add([
+      text(score),
+      scale(0.5, 0.5),
+      pos(width() - 64, 16)
+    ]);
+    const hpCounter = add([
+      text(hp),
+      scale(0.5, 0.5),
+      pos(40, 8)
+    ]);
+    add([
+      sprite("hp"),
+      pos(8, 8)
+    ]);
+    player.onCollide("tree", () => {
+      play("hurt");
+      shake();
+      if (over == false) {
+        hp -= 1;
+      }
+      if (hp <= 0) {
+        over = true;
+      }
+    });
+    player.onCollide("pepper", (p) => {
+      play("eat");
+      destroy(p);
+      score += 1 * pepperBoost;
+    });
+    player.onCollide("gp", (gp) => {
+      play("gold");
+      destroy(gp);
+      wait(3, go("win"));
+    });
+    onUpdate(() => {
+      if (SPEED < 500) {
+        SPEED += 0.02;
+      }
+      if (angry == true && angryTime > 0) {
+        angryTime -= 1 / 60;
+      } else if (angry == true && angryTime <= 0) {
+        angry = false;
+        hp = last_hp;
+        SPEED = last_SPEED;
+      }
+      scoreLabel.text = score;
+      hpCounter.text = hp;
+      if (over == true) {
+        if (angry == true) {
+          player.play("angry_over");
+        } else {
+          player.play("over");
+        }
+        wait(2, () => {
+          go("thescore", score);
+        });
+      } else if (player.isGrounded() && run == false) {
+        run = true;
+        if (angry == true) {
+          player.play("angry_run");
+        } else {
+          player.play("run");
+        }
+      }
+    });
+  });
+  scene("thescore", () => {
+    add([
+      rect(width(), height()),
+      pos(0, 0),
+      color(172, 146, 115)
+    ]);
+    over = false;
+    pepperBoost = 1;
+    pepperCount = 0;
+    hp = 3;
+    const player = add([
+      sprite("Cookwalkright"),
+      pos(width() / 2 - 10, height() / 2 - 40),
+      scale(2),
+      origin("center")
+    ]);
+    player.play("idle");
+    play("angry");
+    add([
+      text(score),
+      pos(width() / 2 - 8, height() / 2 + 30),
+      origin("center"),
+      scale(0.6, 0.6)
+    ]);
+    score = 0;
+    add([
+      sprite("key"),
+      pos(width() / 2 - 30, 180)
+    ]);
+    add([
+      text("Press"),
+      pos(width() / 2 - 70, 180),
+      scale(0.15, 0.15)
+    ]);
+    add([
+      text("to play"),
+      pos(width() / 2 + 20, 180),
+      scale(0.15, 0.15)
+    ]);
+    add([
+      sprite("back"),
+      area(),
+      pos(width() - 100, 175),
+      "b"
+    ]);
+    onClick("b", () => go("menu"));
     onKeyPress("space", () => go("game"));
   });
   scene("howtoplay", () => {
     add([
       rect(width(), height()),
       pos(0, 0),
-      color(172, 172, 172)
+      color(172, 146, 115)
     ]);
     add([
       rect(width(), FLOOR_HEIGHT),
@@ -3461,7 +3756,7 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     add([
       rect(width(), height()),
       pos(0, 0),
-      color(172, 172, 172)
+      color(172, 146, 115)
     ]);
     add([
       sprite("back"),
@@ -3469,13 +3764,47 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
       pos(width() / 2 - 40, 175),
       "b"
     ]);
+    add([
+      text("Lore"),
+      pos(width() / 3 + 40, 8),
+      scale(0.2, 0.2),
+      color(231, 18, 18)
+    ]);
+    add([
+      text(`Once apon time, there was really good cook named Pedro.
+He was obsessed with the spiciness of his dishes.
+One day he found a legend about Golden Pepper Fields, 
+that contains the world spicest peppers.
+
+Legend says that by avoiding less spicy food and eating more spicy ones,
+you'll get worthy and find the golden fields.
+Pedro decided to take the challange.
+
+However all lines of this legend, 
+where is stands the name "Golden Pepper Fields" 
+has always 253 characters. 
+Is this a hint? Does golden peppers want to tell you somethink?`),
+      scale(0.1, 0.1),
+      pos(width() / 5, height() / 6)
+    ]);
+    add([
+      sprite("goldenpepper"),
+      pos(32, height() / 3),
+      scale(2, 2),
+      rotate(20)
+    ]);
+    add([
+      sprite("253"),
+      pos(width() - 32, height() / 2 - 8),
+      rotate(45)
+    ]);
     onClick("b", () => go("menu"));
   });
   scene("intro", () => {
     add([
       rect(width(), height()),
       pos(0, 0),
-      color(172, 172, 172)
+      color(172, 146, 115)
     ]);
     add([
       text("made by RealFiction"),
@@ -3500,6 +3829,6 @@ vec4 frag(vec3 pos, vec2 uv, vec4 color, sampler2D tex) {
     onKeyPress("space", () => go("menu"));
     onClick(() => go("menu"));
   });
-  go("intro");
+  go("arcademenu");
 })();
 //# sourceMappingURL=game.js.map
