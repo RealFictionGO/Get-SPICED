@@ -18,7 +18,7 @@ let last_hp = 0
 let angry = false
 let angryTime = 0
 
-let score = 250;
+let score = 0;
 
 const textes = ["Good job", "Ones more", "Another bites...", "THAT CLOSE"]
 
@@ -143,6 +143,12 @@ scene("game", () => {
   onClick("fury", () => {
     if(score >= 10 && over == false){
       play("fury")
+      if(player.isGrounded()){
+        player.play("angry_run")
+      }
+      else{
+        player.play("angry_jump")
+      }
       last_SPEED = SPEED
       SPEED = 400
       score -= 10
@@ -255,6 +261,18 @@ scene("game", () => {
 		pos(width() - 64, 16),
 	]);
 
+  const boostCounting = add([
+    text(`x ${pepperBoost}`),
+    scale(0.3,0.3),
+    pos(scoreLabel.pos.x + 40,scoreLabel.pos.y + 23)
+  ])
+
+  add([
+    text("x"),
+    scale(0.2,0.2),
+    pos(boostCounting.pos.x - 6, boostCounting.pos.y + 6)
+  ])
+
   const hpCounter = add([
     text(hp),
     scale(0.5,0.5),
@@ -285,7 +303,9 @@ scene("game", () => {
   })
 
   player.onCollide("gp", (gp) => {
-    play("gold")
+    play("gold", {
+      volume: 0.2
+    })
     destroy(gp);
     wait(3,() => {
         go("win")
@@ -305,6 +325,8 @@ scene("game", () => {
         "gp"
       ])
     }
+    boostCounting.text = pepperBoost;
+    
     if(SPEED < 500){
       SPEED += 0.02;
     }
@@ -372,38 +394,38 @@ scene("win", () => {
   add([
     sprite("back"),
     area(),
-    pos(width() - 100, 175),
+    pos(width() - 100, height() - 30),
     "b"
   ])
 
   add([
     text("My SPICE POWERS released their potentials"),
-    pos(width() / 4 + 8, height() / 2),
+    pos(width() / 3 + 8, height() / 2),
     scale(0.1,0.1),
     color(206,206,28)
   ])
 
   add([
     text("However my tongue is kinda burnt now"),
-    pos(width() / 4 + 20, height() / 2 + 10),
+    pos(width() / 3 + 20, height() / 2 + 10),
     scale(0.1,0.1)
   ])
 
   add([
     text("Whatever, don't forget to gather you own vitamin powers"),
-    pos(width() / 4 - 20, height() / 2 + 20),
+    pos(width() / 3 - 20, height() / 2 + 20),
     scale(0.1,0.1)
   ])
 
   add([
     text("And thanks for playing!"),
-    pos(width() / 4 + 50, height() / 2 + 30),
+    pos(width() / 2 - 56 , height() / 2 + 30),
     scale(0.1,0.1)
   ])
 
   add([
     text("May the pepper spice be with you"),
-    pos(width() / 4 + 32, height() / 2 + 40),
+    pos(width() / 3 + 24, height() / 2 + 40),
     scale(0.1,0.1),
     color(206,44,28)
   ])
@@ -458,7 +480,7 @@ scene("victory", () => {
   add([
     sprite("back"),
     area(),
-    pos(width() / 2 - 40, 175),
+    pos(width() / 2 - 40, height() - 30),
     "b"
   ])
 
@@ -552,30 +574,30 @@ scene("menu", () => {
   ])
   add([
     sprite("logo"),
-    pos(width() / 4 - 20,-20),
+    pos(width() / 2 - 130,-20),
     scale(2,2)
   ]) // press play text and sprite
 
   add([
     sprite("key"),
-    pos(width() / 2 - 30, 150)
+    pos(width() / 2 - 30, height() / 1.5 + 10)
   ])
 
   add([
     text("Press"),
-    pos(width() / 2 - 70, 150),
+    pos(width() / 2 - 70, height() / 1.5 + 10),
     scale(0.15,0.15)
   ])
 
   add([
     text("to play"),
-    pos(width() / 2 + 20, 150),
+    pos(width() / 2 + 20, height() / 1.5 + 10),
     scale(0.15,0.15)
   ])
 
   add([
     sprite("htp"),
-    pos(width() / 2 - 130, 136),
+    pos(width() / 2 - 130, height() / 1.5),
     area(),
     "htp"
   ])
@@ -584,7 +606,7 @@ scene("menu", () => {
 
   add([
     sprite("story"),
-    pos(width() / 2 + 90, 136),
+    pos(width() / 2 + 90, height() / 1.5),
     area(),
     "lore"
   ])
@@ -614,35 +636,35 @@ scene("arcademenu", () => {
   add([
     sprite("back"),
     area(),
-    pos(width() / 2 - 40, 175),
+    pos(width() / 2 - 40, height() - 30),
     "b"
   ]);
 
   add([
-    sprite("key"),
-    pos(width() / 2 - 30, 150)
-  ])
-
-  add([
     sprite("am"),
-    pos(width() / 5, height() / 3),
+    pos(width() / 4 + 16, height() / 3),
     scale(1.5,1.5)
   ])
 
   add([
     sprite("er"),
-    pos(width() / 3.5, height() / 2),
+    pos(width() / 3 + 16, height() / 2),
+  ])
+
+add([
+    sprite("key"),
+    pos(width() / 2 - 30, height() / 1.5 + 10)
   ])
 
   add([
     text("Press"),
-    pos(width() / 2 - 70, 150),
+    pos(width() / 2 - 70, height() / 1.5 + 10),
     scale(0.15,0.15)
   ])
 
   add([
     text("to play"),
-    pos(width() / 2 + 20, 150),
+    pos(width() / 2 + 20, height() / 1.5 + 10),
     scale(0.15,0.15)
   ])
 
@@ -652,6 +674,7 @@ scene("arcademenu", () => {
 })
 
 scene("arcadegame", () => {
+
   add([
     rect(width() * 2, height() * 2),
     pos(-width()/2,-height()/2),
@@ -693,6 +716,12 @@ scene("arcadegame", () => {
   onClick("fury", () => {
     if(score >= 10 && over == false){
       play("fury")
+      if(player.isGrounded()){
+        player.play("angry_run")
+      }
+      else{
+        player.play("angry_jump")
+      }
       last_SPEED = SPEED
       SPEED = 400
       score -= 10
@@ -837,13 +866,16 @@ scene("arcadegame", () => {
   player.onCollide("gp", (gp) => {
     play("gold")
     destroy(gp);
-    wait(3, go("win"))
+    wait(3,() => {
+        go("win")
+      })
   })
 
 	// keep track of score
 
 	// increment score every frame
 	onUpdate(() => {
+    
     if(SPEED < 500){
       SPEED += 0.02;
     }
@@ -865,7 +897,7 @@ scene("arcadegame", () => {
         player.play('over')
       }
       wait(2,() => {
-        go("thescore", score)
+        go("lose", score)
       })
     }
     else if(player.isGrounded() && run == false){
@@ -879,7 +911,7 @@ scene("arcadegame", () => {
     }
 	});
 
-})
+});
 
 scene("thescore", () => {
   add([
@@ -965,7 +997,7 @@ scene("howtoplay", () => {
   ])
 
   add([
-    text("buy powerup's to\nboost your gameplay"),
+    text("buy powerups to\nboost your gameplay"),
     scale(0.1,0.1),
     pos(hu.pos.x + 35, hu.pos.y + 10)
   ])
@@ -973,7 +1005,7 @@ scene("howtoplay", () => {
   add([
     sprite("back"),
     area(),
-    pos(width() / 2 - 40, 175),
+    pos(width() / 2 - 40, height() - 30),
     "b"
   ]);
 
@@ -1032,13 +1064,13 @@ scene("lores", () => {
   add([
     sprite("back"),
     area(),
-    pos(width() / 2 - 40, 175),
+    pos(width() / 2 - 40, height() - 30),
     "b"
   ])
 
   add([
     text("Lore"),
-    pos(width() / 3 + 40, 8),
+    pos(width() / 2 - 32, 8),
     scale(0.2,0.2),
     color(231,18,18)
   ])
@@ -1046,7 +1078,7 @@ scene("lores", () => {
   add([
     text("Once apon time, there was really good cook named Pedro.\nHe was obsessed with the spiciness of his dishes.\nOne day he found a legend about Golden Pepper Fields, \nthat contains the world spicest peppers.\n\nLegend says that by avoiding less spicy food and eating more spicy ones,\nyou'll get worthy and find the golden fields.\nPedro decided to take the challange.\n\nHowever all lines of this legend, \nwhere is stands the name \"Golden Pepper Fields\" \nhas always 253 characters. \nIs this a hint? Does golden peppers want to tell you somethink?"),
     scale(0.1,0.1),
-    pos(width() / 5, height() / 6)
+    pos(width() / 4 + 16, height() / 6)
   ])
 
   add([
@@ -1074,24 +1106,24 @@ scene("intro", () => {
   add([
     text("made by RealFiction"),
     scale(0.2,0.2),
-    pos(width() / 3 - 15, height() / 2 - 16),
+    pos(width() / 2 - 90, height() / 2 - 16),
     color(23,158,188)
   ])
 
   add([
     sprite("key"),
-    pos(width() / 2 - 45, 150)
+    pos(width() / 2 - 45, height() / 1.5)
   ])
 
   add([
     text("Press"),
-    pos(width() / 2 - 85, 150),
+    pos(width() / 2 - 85, height() / 1.5),
     scale(0.15,0.15)
   ])
 
   add([
     text("to continue"),
-    pos(width() / 2 + 5, 150),
+    pos(width() / 2 + 5, height()/ 1.5),
     scale(0.15,0.15)
   ])
 
@@ -1099,4 +1131,4 @@ scene("intro", () => {
   onClick(() => go("menu"));
 })
 
-go("arcademenu");
+go("intro");
